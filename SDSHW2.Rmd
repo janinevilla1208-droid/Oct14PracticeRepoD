@@ -1,0 +1,84 @@
+---
+title: "SDS-HW2"
+author: "Marie Janine Villa mv32982"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include = FALSE}
+
+knitr::opts_knit$set(root.dir = "~/Desktop/SDS" )
+
+#needed packages:
+library(ggplot2)
+library(kableExtra)
+```
+
+```{r echo=FALSE}
+HW2 <- read.csv('HW2.csv')
+```
+
+# **1. Introduction **
+
+In your own words, describe the dataset you are analyzing in your report and what you are going to investigate (2-3 sentences).
+
+  - The data set I am analyzing is a compiled list of the worlds tallest buildings. This catalog, updated in the summer of 2025, combines the top 100 of the world tallest finished buildings and unfinished buildings. Some variables in this data set include the number of floors in the building, the height(meters) of the building, the materials the building is composed of, and also the buildings purpose.   
+
+
+# **2. RQ1: How tall are the world’s tallest buildings? **
+To answer this RQ, first convert the “height” variable from meters into feet.  Create a new variable in the dataset for height of each building in feet.  Graph this new variable’s distribution and provide the relevant descriptive statistics inline within a short paragraph describing the distribution.
+
+```{r}
+#1 meter = 3.28084 feet
+h <- HW2$Height 
+f <- round(h * 3.28084, digits = 2) 
+
+
+HW2_ggplot <- ggplot(HW2)
+HW2_ggplot + geom_histogram(aes(x= f)) + labs(title='Height of the Worlds Tallest Buildings', x = 'Height (feet)', y = 'count')
+```
+
+  - The distribution of the height of the worlds tallest buildings seen in the graph shows trends of right leaning skewness. There appears to be a possible outlier located in the extreme right, which when interpreted, means that this building(s) may be significantly higher than the rest of the buildings in the data set. The rounded median of this data set is `r round(median(f))` feet, which holds true based on the graph above as it seems that most building heights seem to be near this value. The standard deviation of height of the worlds tallest buildings is `r round(sd(f))` feet.
+  
+
+
+# **3. RQ2: For completed buildings, is there a relationship between the year it was completed and height?  **
+ Using your newly created variable from #2 above, answer this RQ by creating the appropriate graph and provide the relevant descriptive statistic inline within a short paragraph. 
+
+  
+```{r}
+HW2_ggplot + geom_point(aes(x=CompletionYear,y=f)) + labs(title = 'Is there a relationship between the year it was completed and height?', x = 'Year Completed', y = 'Height (feet)' ) 
+
+#SIDENOTE: I tried cor(f,HW2$CompletionYear) but completion year has some missing variables
+
+```
+
+  -  Based on the graph above, it can be seen that the majority of the points lie on the extreme right, which when interpreted, suggest that most of the worlds tallest buildings have been built in the most recent years. There also appears to be a potential outlier on the extreme left. The correlation coefficent of the height of the worlds tallest buildings and the year completed is was not able to be found due to some gaps in the data for the Completion Year. Although, from the data, it is seen that the mean height for the buildings is around `r round(mean(f), digits = 2)` feet. 
+
+
+
+# **4. RQ3: Write your own RQ!**
+Now compare some feature of the buildings that are completed versus still under construction.  Write your research question, create the appropriate graph, and calculate descriptive statistics to answer your question in a short paragraph (you do not need inline statistics for this section, but can include them if you’d like).
+
+  -  RQ: Is a building's completion status (unfinished or completed) related to the number of floors the building has?
+
+```{r}
+HW2_ggplot + geom_boxplot(aes(x=Floors, y = Status)) + labs(title = 'Does completion status relate to the number of floors in a building?')
+```
+ 
+ - Based on the graph above, it can be seen that the number of floors for completed and uncompleted buildungs are relativley similar, however, the median floors for the buildings of the completed construction is higher in magnitude than the uncompleted construction. On the other hand, it should be noted that the uncompleted structure have the maximum magnitude of floors given the outliers on the extreme right.The actual median height for buildings uncompleted is ` 
+
+
+
+
+# **5. Conclusion and Reference**
+  - Write a brief summary (2-3 sentences only) of your analyses and reference the source of your data. Include a hyperlink to the website of the data source.
+  
+  - From the study of the data set comprised of the World's Tallest Buildings, it can be seen that the tallest buildings in the world usually range at about 1202 feet, with the highest building standing well above 3000 feet. To continue with the study of the worlds tallest buildings heights, from the data set a trend can be seen that the majority of the worlds tallest buildings have been or are being built in the recent years and near-future years to come. Moving on from height, something that should be noted is that in general, the number of floors a tall building will have is not strongly reliant on the completion status, but the highest median number of floors go to the buildings that have completed construction. 
+  
+  - The data used to create these conclusions were provided and compiled by the Council on Tall Buildings and Urban Habitat. In which the link can be found [HERE](https://www.ctbuh.org/)
+
+
+  
