@@ -28,6 +28,7 @@ rate <- as_tibble(read_csv("HW4Rate.csv"))
 is_tibble(rate)
 
 ```
+## New Edit
 
 #**1.Introduction:**
 
