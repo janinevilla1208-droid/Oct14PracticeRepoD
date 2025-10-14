@@ -1,0 +1,99 @@
+---
+title: "SDS-HW4"
+author: "Marie Janine Villa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = "~/Desktop/SDS" )
+setwd("~/Desktop/SDS")
+
+
+library(kableExtra)
+library(tidyverse)
+library(dplyr)
+library(stringr)
+library(ggplot2)
+
+principals <- as_tibble(read_csv("HW4Prin.csv"))
+is_tibble(principals)
+
+TV <- as_tibble(read_csv("HW4TV.csv"))
+is_tibble(TV)
+
+rate <- as_tibble(read_csv("HW4Rate.csv"))
+is_tibble(rate)
+
+```
+
+#**1.Introduction:**
+
+  - In this assignment, I will be exploring three data sets. The first data set is the principals, in which it describes things about the crew, the actors/actresses of the TV series such as name, birth year, death year, etc. The second data set is TV, in which it describes the TV series available on IMDb website with descriptions like TV title, start year, end year, etc. The last data set is ratings, in which it shows the average rating of the movies and TV series available on the IMDb website. 
+  
+  
+#**RQ1: Are TV series getting shorter or longer?**
+
+
+```{r}
+EndYear <- filter(TV, endYear>0)
+RT <- mutate(EndYear, RunTime = endYear-startYear)
+FilterRT <- filter(RT, RunTime>0)
+ByStartYear <- group_by(FilterRT, startYear )
+summarize(ByStartYear, MedianRunTime = median(RunTime))
+```
+  - Based on the table above, it can be seen that for each year, the median run time is 1, meaning that across all years, the shows don't last more than one year. Comparing the medians, it can be seen that the average run times are neither decreasing nor increasing as the starting year goes on. 
+
+
+#**RQ2: What are the average ages for each category of principals?**
+
+```{r}
+TVPrin <- right_join(TV,principals)
+TVP <- filter(TVPrin, deathYear>0, birthYear>0)
+age <- mutate(TVP, A = deathYear-birthYear)
+ByPrincipals <- group_by(age, category)
+summarize(ByPrincipals, MedianAge = median(A))
+```
+  - Based on the table above, it can be seen that the highest median ages would be the category of actors/actresses that played themselves, while the youngest median age would belong to the actress category.
+
+
+#**RQ3: How are sci-fi series rated?**
+
+```{r}
+TVSciFi <- filter(TV,str_detect(genres, "Sci-Fi"))
+TVSciFiRate <- left_join(TVSciFi,rate)
+TVSciFiRateAbove <- filter(TVSciFiRate, numVotes > 20)
+TVSFRA_ggplot <- ggplot(TVSciFiRateAbove)
+TVSFRA_ggplot + geom_bar(aes(x=averageRating)) + labs(title = "Average Ratings for Sci-Fi TV series", x = "Ratings", y = "Count" )
+sd(TVSciFiRateAbove$averageRating)
+mean(TVSciFiRateAbove$averageRating)
+```
+
+  - Based on the graph above, it can be seen that the average ratings of sci-fi TV series is generally left skewed, with possible low outliers. The mean average ratings of sci-fi TV series is `r (round(mean(TVSciFiRateAbove$averageRating), digits = 2))`. The standard deviation of the average ratings of sci-fi TV series is `r (round(sd(TVSciFiRateAbove$averageRating), digits = 2))`.
+
+
+#**RQ4: Write your own RQ!**
+
+RQ- Does the starting year of a TV show impact the shows TV average ratings?
+
+```{r}
+TVRate <- left_join(TV,rate)
+TVWithRatings <- filter(TVRate, averageRating > 0)
+ByStartYearTV <- group_by(TVWithRatings , startYear)
+ByStartYearTV
+summarize(ByStartYearTV, AverageRatings = mean(averageRating))
+
+TVWR_ggplot <- ggplot(TVWithRatings)
+TVWR_ggplot + geom_boxplot(aes(x=averageRating, group = startYear, y = startYear)) + labs(title = "Average Ratings for TV series by starting year" )
+
+```
+
+- Based on the table and box plot above, it can be seen that in general, the average ratings of a TV show does not depend on the starting year for the series as the means across all starting years are relatively close together. Also seen by the box plots, all years generally seem to have the same spread of rates 
+
+
+#**Conclusion and Reference:**
+Write a brief summary (2-3 sentences only) of your analyses and reference the source of your data. Include a hyperlink to the website of the data source.
+
+  - Based on my analyses conducted in this assignment, it can be concluded that based on the mean running times of a TV show, TV shows are generally getting shorter in run time as the years go on. In the field of TV shows, the older workers on a show generally belong to the actors/actresses playing themselves, while the youngest on a show are usually the female actors. Also from this assignment it was concluded that ratings of TV shows that can be classified as a Sci-Fi genre have an average rating of 6.54. Lastly, it can be seen that the starting year of a TV show does not generally impact the ratings of the TV show, but instead, the average ratings for TV shows across the starting years are generally similar. 
+  
+  - The three data sets used to conduct these experiments were provided and compiled by IMDb, which can be found [HERE](https://www.imdb.com/) and [HERE](https://developer.imdb.com/non-commercial-datasets/)
